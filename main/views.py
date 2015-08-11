@@ -1,11 +1,14 @@
 from django.shortcuts import render, render_to_response
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 
 from main.models import Manufacturer, Cereal
-from main.forms import CerealSearch, CreateCereal
+from main.forms import CerealSearch, CreateCereal, UserSignUp, UserLogin
 
 from django.contrib.auth.models import User
+
+from django.db import IntegrityError
+from django.contrib.auth import authenticate, login, logout
 
 # Create your views here.
 
@@ -209,11 +212,7 @@ def form_view2(request):
 
 	return render_to_response('form_view2.html', context, context_instance=RequestContext(request))
 
-from django.contrib.auth.models import User
-from main.forms import UserSignUp
-from django.db import IntegrityError
-from django.contrib.auth import authenticate, login
-from django.http import HttpResponse, HttpResponseRedirect
+
 
 def signup(request):
 
@@ -248,10 +247,39 @@ def signup(request):
 
 	if request.method == 'GET':
 		context['valid'] = "Please Sign Up!"
-	
-
 
 	return render_to_response('signup.html', context, context_instance=RequestContext(request))
+
+def login_view(request):
+
+	context = {}
+
+	context['form'] = UserLogin()
+
+	username = request.POST.get('username', None)
+	password = request.POST.get('password', None)
+
+	auth_user = authenticate(username=username, password=password)
+
+	if auth_user is not None:
+		if auth_user.is_active:
+			login(request, auth_user)
+			context['valid'] = "Login Successful"
+
+			return HttpResponseRedirect('/home/')
+		else:
+			context['valid'] = "Invalid User"
+	else:
+		context['valid'] = "Please enter a User Name"
+
+
+	return render_to_response('login.html', context, context_instance=RequestContext(request))
+
+def logout_view(request):
+
+	logout(request)
+
+	return HttpResponseRedirect('/login_view/')
 
 
 

@@ -27,6 +27,10 @@ class UserSignUp(forms.Form):
 	email = forms.EmailField(required=True)
 	password = forms.CharField(widget=forms.PasswordInput(), required=True)
 
+class UserLogin(forms.Form):
+	username = forms.CharField(required=True)
+	password = forms.CharField(required=True, widget=forms.PasswordInput())
+
 # class CreateCereal(forms.ModelForm):
 #     class Meta:
 #         model = Cereal
